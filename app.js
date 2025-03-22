@@ -18,6 +18,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+app.get('/test', (req, res) => {
+    res.json({ message: 'Server is working!' });
+  });
+
 app.post('/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No image uploaded' });
