@@ -5,7 +5,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const app = express();
-const port = 3000;
+const port = 3003;
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -57,5 +57,5 @@ app.post('/upload', upload.single('image'), (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server running on port http://192.168.68.104:${port}`);
+    console.log(`Server running on port http://localhost:${port}`);
 });
