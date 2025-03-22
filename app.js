@@ -5,7 +5,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const app = express();
-const port = 3003;
+const port = 3000;
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
