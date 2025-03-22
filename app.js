@@ -9,13 +9,13 @@ const port = 3003;
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, 'uploads/');
+        cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-      cb(null, Date.now() + '-' + file.originalname);
+        cb(null, Date.now() + '-' + file.originalname);
     },
-  });
-  
+});
+
 const upload = multer({ storage });
 
 app.post('/upload', upload.single('image'), (req, res) => {
@@ -23,10 +23,17 @@ app.post('/upload', upload.single('image'), (req, res) => {
         return res.status(400).json({ error: 'No image uploaded' });
     }
 
+    const uploadDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
+    }
+
     const imagePath = path.join(__dirname, 'uploads', req.file.filename);
+
     console.log(`Received image: ${imagePath}`);
 
-    const pythonProcess = spawn('C:\\Users\\CJ Soriano\\.conda\\envs\\pytorch-wildlife\\python.exe', ['detect.py', imagePath]);
+    // const pythonProcess = spawn('C:\\Users\\CJ Soriano\\.conda\\envs\\pytorch-wildlife\\python.exe', ['detect.py', imagePath]);
+    const pythonProcess = spawn('python3', ['detect.py', imagePath]);
 
     let result = '';
     pythonProcess.stdout.on('data', (data) => {
@@ -41,11 +48,11 @@ app.post('/upload', upload.single('image'), (req, res) => {
     pythonProcess.on('close', (code) => {
         console.log(`Python process exited with code ${code}`);
         console.log('Full output from Python:', result);
-    
+
         //extract last line
         const lines = result.trim().split("\n");
         const lastLine = lines[lines.length - 1];
-    
+
         try {
             const responseData = JSON.parse(lastLine);
             res.json(responseData);
