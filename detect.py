@@ -8,7 +8,7 @@ DEVICE = "cpu"
 
 # Load the MegaDetectorV6 model
 model = pw_detection.MegaDetectorV6(device="cpu", pretrained=True, version="MDV6-yolov10-c")
-
+model.half()  # Convert to half precision
 def detect(image_path):
     # Perform detection
     results = model.single_image_detection(image_path)
