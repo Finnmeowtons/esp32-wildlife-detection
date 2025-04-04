@@ -1,11 +1,10 @@
 import sys
 import json
 import torch
-import os
 from PytorchWildlife.models import detection as pw_detection
 
 # Set device
-DEVICE = "cpu"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load the MegaDetectorV6 model
 model = pw_detection.MegaDetectorV6(device=DEVICE, pretrained=True, version="MDV6-yolov10-e")
@@ -23,16 +22,12 @@ def detect(image_path):
         "has_animal": has_animal
     }
     
-    return {"image": image_path, "has_animal": has_animal}
-
+    return json.dumps(detection_data)
 
 if __name__ == "__main__":
-    upload_folder = "uploads"
-    detections = {}
-
-    for filename in os.listdir(upload_folder):
-        if filename.endswith(".jpg"):
-            image_path = os.path.join(upload_folder, filename)
-            detections[filename] = detect(image_path)
-
-    print(json.dumps(detections))
+    if len(sys.argv) < 2:
+        print(json.dumps({"error": "No image path provided"}))
+        sys.exit(1)
+    
+    image_path = sys.argv[1]
+    print(detect(image_path))
