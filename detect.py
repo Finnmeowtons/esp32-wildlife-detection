@@ -7,7 +7,7 @@ from PytorchWildlife.models import detection as pw_detection
 DEVICE = "cpu"
 
 # Load the MegaDetectorV6 model
-model = pw_detection.MegaDetectorV5(device=DEVICE, pretrained=True)
+model = pw_detection.MegaDetectorV6(device="cpu", pretrained=True, version="MDV6-yolov10-c")
 
 def detect(image_path):
     # Perform detection
