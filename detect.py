@@ -4,10 +4,10 @@ import torch
 from PytorchWildlife.models import detection as pw_detection
 
 # Set device
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = "cpu"
 
 # Load the MegaDetectorV6 model
-model = pw_detection.MegaDetectorV6(device=DEVICE, pretrained=True, version="MDV6-yolov10-e")
+model = pw_detection.MegaDetectorV5(device=DEVICE, pretrained=True)
 
 def detect(image_path):
     # Perform detection
