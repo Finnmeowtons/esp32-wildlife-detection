@@ -60,8 +60,10 @@ app.post("/upload", upload.single("imageFile"), async (req, res) => {
         return res.status(400).send("No file uploaded.");
     }
 
-    const imagePath = path.resolve(req.file.path); // Absolute path to file
-    console.log(`Image received from ${req.query.device || "unknown"}: ${req.file.filename}`);
+    const device = req.query.device || "unknown";
+    const imagePath = `./uploads/${req.file.filename}`;
+
+    console.log(`Image received from ${device}: ${req.file.filename}`);
 
     try {
         const detectionResult = await runDetection(imagePath);
@@ -75,6 +77,7 @@ app.post("/upload", upload.single("imageFile"), async (req, res) => {
         res.status(500).json({ message: "Detection failed", error: err });
     }
 });
+
 
 
 app.listen(PORT, () => {
