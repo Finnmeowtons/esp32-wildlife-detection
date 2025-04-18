@@ -16,7 +16,7 @@ if (!fs.existsSync(uploadDir)) {
 // Function to run detect.py
 const runDetection = (imagePath) => {
     return new Promise((resolve, reject) => {
-        const pythonProcess = spawn("C:\\Users\\CJ Soriano\\.conda\\envs\\pytorch-wildlife\\python.exe", ["detect.py", imagePath]);
+        const pythonProcess = spawn(`bash -c "source venv/bin/activate && python3 detect.py ${imagePath}"`);
 
         let result = "";
         pythonProcess.stdout.on("data", (data) => {
@@ -55,14 +55,27 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Route to handle image uploads
-app.post("/upload", upload.single("imageFile"), (req, res) => {
+app.post("/upload", upload.single("imageFile"), async (req, res) => {
     if (!req.file) {
         return res.status(400).send("No file uploaded.");
     }
 
+    const imagePath = path.resolve(req.file.path); // Absolute path to file
     console.log(`Image received from ${req.query.device || "unknown"}: ${req.file.filename}`);
-    res.status(200).json({ message: "Image uploaded successfully!", filename: req.file.filename });
+
+    try {
+        const detectionResult = await runDetection(imagePath);
+        res.status(200).json({
+            message: "Image uploaded and detection complete!",
+            filename: req.file.filename,
+            result: detectionResult
+        });
+    } catch (err) {
+        console.error("Detection error:", err);
+        res.status(500).json({ message: "Detection failed", error: err });
+    }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
