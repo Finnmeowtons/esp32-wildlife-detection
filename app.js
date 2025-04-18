@@ -3,9 +3,15 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
+const mqtt = require("mqtt");
+const mqttClient = mqtt.connect("mqtt://157.245.204.46:1883");
 
 const app = express();
 const PORT = 3000;
+
+mqttClient.on("connect", () => {
+    console.log("Connected to MQTT broker (from app.js)");
+});
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, "uploads");
@@ -68,6 +74,14 @@ app.post("/upload", upload.single("imageFile"), async (req, res) => {
 
     try {
         const detectionResult = await runDetection(imagePath);
+
+        // MQTT Publish
+        mqttClient.publish("mais/animal", JSON.stringify({
+            device: device,
+            image: req.file.filename,
+            has_animal: detectionResult.has_animal
+        }));
+
         res.status(200).json({
             message: "Image uploaded and detection complete!",
             filename: req.file.filename,
@@ -78,6 +92,7 @@ app.post("/upload", upload.single("imageFile"), async (req, res) => {
         res.status(500).json({ message: "Detection failed", error: err });
     }
 });
+
 
 
 
