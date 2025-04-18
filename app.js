@@ -29,9 +29,11 @@ const runDetection = (imagePath) => {
 
         pythonProcess.on("close", (code) => {
             console.log(`Python process exited with code ${code}`);
-
             try {
-                const responseData = JSON.parse(result.trim());
+                // Get the last non-empty line (assumed to be JSON)
+                const lines = result.trim().split("\n").filter(Boolean);
+                const lastLine = lines[lines.length - 1];
+                const responseData = JSON.parse(lastLine);
                 resolve(responseData);
             } catch (error) {
                 reject("Error parsing detection result");
