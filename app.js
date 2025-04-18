@@ -16,8 +16,10 @@ if (!fs.existsSync(uploadDir)) {
 // Function to run detect.py
 const runDetection = (imagePath) => {
     return new Promise((resolve, reject) => {
-        const pythonProcess = spawn(`bash -c "source venv/bin/activate && python3 detect.py ${imagePath}"`);
-
+        const condaCommand = spawn(`bash -c "source venv/bin/activate && python3 detect.py ${imagePath}"`);
+        const pythonProcess = spawn(condaCommand, {
+            shell: true, // Needed for conda run to work
+        });
         let result = "";
         pythonProcess.stdout.on("data", (data) => {
             console.log(`Python Output: ${data.toString()}`);
