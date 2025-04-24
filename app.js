@@ -9,6 +9,8 @@ const mqttClient = mqtt.connect("mqtt://157.245.204.46:1883");
 const app = express();
 const PORT = 3000;
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 mqttClient.on("connect", () => {
     console.log("Connected to MQTT broker (from app.js)");
 });
@@ -92,6 +94,36 @@ app.post("/upload", upload.single("imageFile"), async (req, res) => {
         res.status(500).json({ message: "Detection failed", error: err });
     }
 });
+
+// Serve image for a specific device
+app.get("/image/:deviceId", (req, res) => {
+    const deviceId = req.params.deviceId;
+    const imagePath = path.join(__dirname, "uploads", `${deviceId}.jpg`);
+
+    fs.access(imagePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            return res.status(404).json({ message: "Image not found for this device." });
+        }
+        res.sendFile(imagePath);
+    });
+});
+
+app.get("/images", (req, res) => {
+    fs.readdir(uploadDir, (err, files) => {
+        if (err) {
+            return res.status(500).json({ message: "Failed to list images" });
+        }
+
+        const imageUrls = files.map(file => ({
+            filename: file,
+            url: `http://localhost:${PORT}/uploads/${file}`
+        }));
+
+        res.json(imageUrls);
+    });
+});
+
+
 
 
 
